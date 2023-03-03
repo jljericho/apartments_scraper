@@ -1,4 +1,5 @@
 from pathlib import Path
+import time
 
 import scrapy
 
@@ -19,9 +20,15 @@ class ApartmentsSpider(scrapy.Spider):
         @returns items 0
         @returns requests 1
         """
-        for property_div in response.css("div.property-information"):
+        current_page = response.css("a[aria-label='Current Page']::attr(data-page)").get()
+        for property_div in response.css("div.property-info"):
             link = property_div.css("a.property-link::attr(href)")
             yield scrapy.Request(link.get(), callback=self.parse_result_page)
+        next_page = str(int(current_page) + 1)
+        next_page_link = response.css(f"a[data-page='{next_page}']::attr(href)").get()
+        if next_page_link:
+            print("Next Page: " + next_page)
+            yield scrapy.Request(next_page_link, callback=self.parse)
 
     def parse_result_page(self, response):
         """
