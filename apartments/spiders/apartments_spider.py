@@ -14,11 +14,22 @@ class ApartmentsSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
+        """
+        @url https://www.apartments.com/condos/dupont-circle-washington-dc/
+        @returns items 0
+        @returns requests 1
+        """
         for property_div in response.css("div.property-information"):
             link = property_div.css("a.property-link::attr(href)")
             yield scrapy.Request(link.get(), callback=self.parse_result_page)
 
     def parse_result_page(self, response):
+        """
+        @url https://www.apartments.com/1727-massachusetts-ave-nw-washington-dc/hwclkd0/
+        @returns items 1
+        @returns requests 0 0
+        @scrapes url property_name address zip_code state price bedrooms bathrooms
+        """
         property_name = response.css("h1::text").get().strip(" \r\n")
         print(response.css("span.stateZipContainer span::text").getall())
         state_zip = response.css("span.stateZipContainer span::text").getall()
