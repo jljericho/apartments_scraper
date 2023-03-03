@@ -19,22 +19,42 @@ class ApartmentsSpider(scrapy.Spider):
             yield scrapy.Request(link.get(), callback=self.parse_result_page)
 
     def parse_result_page(self, response):
-        print("Result page!" + response.url)
         property_name = response.css("h1::text").get().strip(" \r\n")
+        print(response.css("span.stateZipContainer span::text").getall())
+        state_zip = response.css("span.stateZipContainer span::text").getall()
+        state = state_zip[0]
+        zip_code = state_zip[1] if len(state_zip) > 1 else None
         basic_info = {
             "url": response.url,
             "property_name": property_name,
             "address": response.css("span.delivery-address").css("span::text").get() or property_name,
+            "zip_code": zip_code,
+            "state": state,
             "neighborhood": response.css("a.neighborhood::text").get(),
             "rent": response.css("p.rentInfoDetail::text").get(),
             "walk_score": response.css("div#walkScoreValue::text").get(),
             "transit_score": response.css("div.transitScore::attr(data-score)").get(),
             "bike_score": response.css("div.bikeScore::attr(data-score)").get(),
-            "sound_score": response.css("div#soundScoreNumber::text").get(),
+            "description": response.css("section.descriptionSection p::text").get(),
+            "rating": response.css("div.averageRating::text").get()
         }
+
+        parking = list()
+        basic_info["application_fee"] = response.xpath("//div[text()='Application Fee']/following-sibling::div[1]/text()").get()
+        basic_info["admin_fee"] = response.xpath("//div[text()='Admin Fee']/following-sibling::div[1]/text()").get()
+        basic_info["build_year"] = response.xpath("//div[contains(text(), 'Built in')]/text()").get()
+        for fee_group in response.css("div.feespolicies"):
+            if fee_group.css("h4::text").get() == "Parking":
+                for parking_option in fee_group.css("li"):
+                    parking.append({
+                        "title": parking_option.css("div.column::text").get(),
+                        "cost": parking_option.css("div.column-right::text").get(),
+                        "description": parking_option.css("div.subTitle::text").get()
+                    })
+
+        basic_info["parking"] = parking
         for model in response.css("div.pricingGridItem"):
-            print(model.css("span.detailsTextWrapper span::text").getall())
-            beds, bath, sqft_range = model.css("span.detailsTextWrapper span::text").getall()
+            beds, bath, sqft_range = model.css("span.detailsTextWrapper span::text").getall()[:3]
 
             model_info = {
                 "model": model.css("span.modelName::text").get(),
