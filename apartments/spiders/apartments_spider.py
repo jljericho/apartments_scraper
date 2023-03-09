@@ -9,7 +9,9 @@ class ApartmentsDotComSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'https://www.apartments.com/dupont-circle-washington-dc/',
+            'https://www.apartments.com/washington-dc/',
+            'https://www.apartments.com/arlington-va/',
+            'https://www.apartments.com/alexandria-va/'
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_search_page)

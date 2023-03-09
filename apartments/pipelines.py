@@ -8,7 +8,10 @@ class PricePipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         if adapter.get("price"):
-            adapter["price"] = int(re.sub('\D', '', adapter["price"]))
+            try:
+                adapter["price"] = int(re.sub('\D', '', adapter["price"]))
+            except ValueError:
+                adapter["price"] = None
         return item
 
 
@@ -62,7 +65,10 @@ class ScorePipeline:
         adapter = ItemAdapter(item)
         for score in self.scores:
             if adapter.get(score):
-                adapter[score] = int(adapter[score])
+                try:
+                    adapter[score] = int(adapter[score])
+                except ValueError:
+                    adapter[score] = None
         return item
 
 
