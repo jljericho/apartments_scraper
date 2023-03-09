@@ -62,9 +62,17 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "apartments.pipelines.ApartmentsPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   "apartments.pipelines.PricePipeline": 300,
+   "apartments.pipelines.BedroomPipeline": 200,
+   "apartments.pipelines.BathroomPipeline": 201,
+   "apartments.pipelines.SquareFeetPipeline": 202,
+   "apartments.pipelines.ScorePipeline": 350,
+   "apartments.pipelines.BuildYearPipeline": 450,
+   "apartments.pipelines.FeePipeline": 405,
+   "apartments.pipelines.RatingPipeline": 400,
+
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
